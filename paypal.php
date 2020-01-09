@@ -15,7 +15,7 @@ try {
     $tokenId = $_POST['recurly-token'];
 
     $subscription = new Recurly_Subscription();
-    $subscription->plan_code = '100';
+    $subscription->plan_code = $_POST['recurly-plan'];
     $subscription->currency = 'USD';
     $account_code = uniqid();
 

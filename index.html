@@ -63,6 +63,7 @@
                                         <input type="hidden" id="recurly-subdomain" name="recurly-subdomain">
                                         <input type="hidden" id="recurly-privatekey" name="recurly-privatekey">
                                         <input type="hidden" id="recurly-publickey" name="recurly-publickey">
+                                        <input type="hidden" id="recurly-plan" name="recurly-plan">
                                     </div>
                                 </form>
                             </section>
@@ -109,6 +110,16 @@
             //  var publicKey = $( "#publickey" ).text();
             //console.log(publicKey);
             //});
+
+            $('#plan-dropdown').change(function() {
+
+                $("#recurly-plan").val($('#plan-dropdown').val());
+                //console.log($('#plan-dropdown').val());
+
+            });
+
+
+
 
             $(function() {
 
@@ -158,9 +169,9 @@
                 // Configure recurly.js with public key
                 recurly.configure(publicKey);
 
-                console.log(privateKey);
-                console.log(publicKey);
-                console.log(subdomain);
+                //console.log(privateKey);
+                //console.log(publicKey);
+                //console.log(subdomain);
 
                 var settings = {
                     "async": true,
