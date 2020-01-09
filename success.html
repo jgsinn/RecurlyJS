@@ -62,8 +62,11 @@
 
             //$('#recurlyurl').attr("href", "https://www." + subdomain_cookie + ".recurly.com/accounts").text("https://www." + subdomain_cookie + ".recurly.com/accounts");
 
-            var giphy = $.get("http://api.giphy.com/v1/gifs/random?tag=good+job&rating=pg-13&api_key=k3fY07I63EO4n0WzO3mpj0MFUcFTDzTr&limit=1");
+            var randomsearch = ["good+job", "dancing", "nice+job"]
 
+            var number = Math.floor((Math.random() * 3));
+
+            var giphy = $.get("http://api.giphy.com/v1/gifs/random?tag=" + randomsearch[number] + "&rating=pg-13&api_key=k3fY07I63EO4n0WzO3mpj0MFUcFTDzTr&limit=1");
             giphy.done(function(data) {
                 console.log(data);
                 var giphyimage = data.data.embed_url;
