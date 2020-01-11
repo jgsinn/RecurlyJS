@@ -42,11 +42,11 @@
 
         <div class="jumbotron vertical-center">
             <div class="container justify-content-center text-center">
-                <img src="recurlyjs.png" class="img-fluid recurlyimage" alt="Responsive image">
-                <p>Aw dang! Something went wrong.</p>
+                <img src="../assets/img/recurlyjs.png" class="img-fluid recurlyimage" alt="Responsive image">
+                <p>View the new account and subscription you created in your Recurly site.</p>
 
                 <iframe id="giphyimage" width="480" height="311" frameBorder="0" class="giphy-embed"></iframe>
-                <p><a class="btn btn-primary" role="button" href="index.html" style="background-color: rgb(115,48,130);">Try Again</a></p>
+                <p><a class="btn btn-primary" role="button" href="index.html" style="background-color: rgb(115,48,130);">Send Another Request</a></p>
             </div>
         </div>
 
@@ -62,9 +62,9 @@
 
             //$('#recurlyurl').attr("href", "https://www." + subdomain_cookie + ".recurly.com/accounts").text("https://www." + subdomain_cookie + ".recurly.com/accounts");
 
-            var randomsearch = ["computer+error"]
+            var randomsearch = ["good+job", "dancing", "nice+job"]
 
-            var number = Math.floor((Math.random() * 1));
+            var number = Math.floor((Math.random() * 3));
 
             var giphy = $.get("http://api.giphy.com/v1/gifs/random?tag=" + randomsearch[number] + "&rating=pg-13&api_key=k3fY07I63EO4n0WzO3mpj0MFUcFTDzTr&limit=1");
             giphy.done(function(data) {
