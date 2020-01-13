@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Recurly.js Example: Minimal Billing Information</title>
+    <title>Recurly.js Example: Taxes</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>
     <script src="https://js.recurly.com/v4/recurly.js"></script>
@@ -17,6 +17,14 @@
             /* These two lines are counted as one :-)       */
             display: flex;
             align-items: center;
+        }
+
+        #pricing {
+            display: inline-block;
+            font-weight: 400;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
         }
 
         #subscribe {
@@ -46,7 +54,7 @@
             margin-bottom: 8%;
         }
 
-        #recurly-account {
+        #recurly-subscription {
             margin-top: 8%;
             margin-bottom: 8%;
         }
@@ -65,7 +73,7 @@
             margin-top: 4%;
         }
 
-        #new-sub-button {
+        #normal-tax-button {
             margin-right: 10%;
         }
 
@@ -80,13 +88,13 @@
 
                         <div class="card-body">
 
-                            <h1>Recurly.js Example: Minimal</h1>
+                            <h1>Recurly.js Example: Tax</h1>
                             <figure>Configure Recurly.js and Select a Plan Below</figure>
 
                             <div class="top-buttons col-md-6 offset-md-3">
-                                <button id="new-sub-button" class="btn btn-primary" type="button" style="color: rgb(255,255,255);background-color: rgb(115,48,130);">New Subscription</button>
+                                <button id="normal-tax-button" class="btn btn-primary" type="button" style="color: rgb(255,255,255);background-color: rgb(115,48,130);">Normal Tax</button>
 
-                                <button id="update-billing-button" class="btn btn-primary" type="button" style="color: rgb(255,255,255);background-color: rgb(115,48,130);">Update Billing Info</button>
+                                <button id="vat-tax-button" class="btn btn-primary" type="button" style="color: rgb(255,255,255);background-color: rgb(115,48,130);">VAT</button>
                             </div>
 
                             <section id="errors" class="errors"></section>
@@ -103,17 +111,40 @@
                                           <input placeholder="Last Name" class="form-control text-center" type="text" data-recurly="last_name" id="last_name" name="last-name">
                                     </div>
 
+                                    <div>
+                                          <input placeholder="Zip" class="form-control text-center" type="text" data-recurly="postal_code" id="potal_code" name="postal_code">
+                                    </div>
+
                                     <div id="recurly-elements">
                                         <!-- Recurly Elements will be attached here -->
                                     </div>
 
                                     <div>
-                                          <input id="recurly-account" placeholder="Account Code" class="form-control text-center" type="text" id="account_code" name="recurly-account">
+                                          <input id="recurly-subscription" placeholder="Subscription UUID" class="form-control text-center" type="text" id="account_code" name="recurly-subscription">
                                     </div>
 
-                                    <select class="form-control" id="plan-dropdown" name="plan">
+
+                                    <select data-recurly="plan" class="form-control" id="plan-dropdown" name="plan">
                                         <option value="" disabled selected hidden>Enter Private Key and Subdomain First</option>
                                     </select>
+
+                                    <div id="pricing" class="form-group">
+                                        <div class="row">
+                                            <h4>Subtotal:&nbsp;</h4>
+                                            <h4 data-recurly="currency_symbol"></h4>
+                                            <h4 data-recurly="subtotal_now"></h4>
+                                        </div>
+                                        <div class="row">
+                                            <h4>Tax:&nbsp;</h4>
+                                            <h4 data-recurly="currency_symbol"></h4>
+                                            <div data-recurly="tax_now"></div>
+                                        </div>
+                                        <div class="row">
+                                            <h4>Total:&nbsp;</h4>
+                                            <h4 data-recurly="currency_symbol"></h4>
+                                            <h4 data-recurly="total_now"></h4>
+                                        </div>
+                                    </div>
 
 
                                     <div class="form-group">
@@ -122,6 +153,7 @@
 
 
                                     <div class="form-group">
+                                        <input type="hidden" data-recurly="tax_code" value="digital">
                                         <input type="hidden" id="recurly-token" name="recurly-token">
                                         <input type="hidden" id="recurly-subdomain" name="recurly-subdomain">
                                         <input type="hidden" id="recurly-privatekey" name="recurly-privatekey">
@@ -179,32 +211,59 @@
 
             var form = $('form');
 
-            $('#update-billing-button').click(function() {
+            $('#vat-tax-button').click(function() {
 
 
                 $('#form').show();
-                $('#update-billing-button').hide();
-                $('#new-sub-button').hide();
+                $('#vat-tax-button').hide();
+                $('#normal-tax-button').hide();
+                $('#first_name').hide();
+                $('#last_name').hide();
 
-                $('#plan-dropdown').hide();
-                $('#recurly-account').show();
-                $('#subscribe').text("Update Billing Info");
 
-                $('#form').attr("action","update_billing_info.php");
+                //$('#plan-dropdown').hide();
+                $('#recurly-subscription').show();
+                $('#subscribe').text("Update Subscription");
+
+                $('#form').attr("action","update_sub.php");
+
+
 
              });
 
-            $('#new-sub-button').click(function() {
+            $('#normal-tax-button').click(function() {
 
                 $('#form').show();
-                $('#update-billing-button').hide();
-                $('#new-sub-button').hide();
+                $('#vat-tax-button').hide();
+                $('#normal-tax-button').hide();
 
                 $('#plan-dropdown').show();
-                $('#recurly-account').hide();
+                $('#recurly-subscription').hide();
                 $('#subscribe').text("Subscribe");
 
                 $('#form').attr("action","new_sub.php");
+
+                const elements = recurly.Elements();
+                const cardElement = elements.CardElement();
+                cardElement.attach('#recurly-elements');
+
+                $('#form').on('submit', function (event) {
+                  const form = this;
+                  event.preventDefault();
+                  recurly.token(elements, form, function (err, token) {
+                    if (err) {
+                        error();
+                      // handle error using err.code and err.fields
+                    } else {
+                        console.log(token.id);
+
+                      $("#recurly-token").val(token.id);
+
+                      form.submit();
+                    }
+                  });
+                });
+
 
              });
             
@@ -223,7 +282,7 @@
 
                 // onReady function to setup page, grab cookies, and setup plan dropdown
 
-                $('#recurly-account').hide();
+                $('#recurly-subscription').hide();
                 $('#form').hide();
 
                 if (privatekey_cookie != '' && publickey_cookie != '' && subdomain_cookie != '') {
@@ -310,6 +369,7 @@
             var publickey_cookie = Cookies.get('publickey');
             var subdomain_cookie = Cookies.get('subdomain');
 
+
             $('#submitbutton').click(function() {
 
                 setPlans();
@@ -331,32 +391,14 @@
             fontWeight: 'bold',
             fontColor: '#2c0730'
           }
-        },
-
-         fraud: { kount: { dataCollector: true } }
+        }
 
       });
 
-        const elements = recurly.Elements();
-        const cardElement = elements.CardElement();
-        cardElement.attach('#recurly-elements');
+        var pricing = recurly.Pricing.Checkout();
 
-        $('#form').on('submit', function (event) {
-          const form = this;
-          event.preventDefault();
-          recurly.token(elements, form, function (err, token) {
-            if (err) {
-                error();
-              // handle error using err.code and err.fields
-            } else {
-                console.log(token.id);
+        pricing.attach(form);
 
-              $("#recurly-token").val(token.id);
-
-              form.submit();
-            }
-          });
-        });
 
       // A simple error handling function to expose errors to the customer
       function error (err) {
